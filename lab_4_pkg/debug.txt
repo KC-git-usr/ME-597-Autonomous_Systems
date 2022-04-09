@@ -1,0 +1,93 @@
+
+What is a PGM file?
+A PGM file is a grayscale image file saved in the portable gray map (PGM) format and encoded with one or two bytes (8 or 16 bits) per pixel. It contains header information and a grid of numbers that represent different shades of gray from black (0) to white (up to 65,536). PGM files are typically stored in ASCII text format, but also have a binary representation.
+
+What is a YAML file?
+YAML is a human-readable data-serialization language. It is commonly used for configuration files and in applications where data is being stored or transmitted. YAML targets many of the same communications applications as Extensible Markup Language but has a minimal syntax which intentionally differs from SGML
+
+----------------------------------------------------------------------------------------------
+						Deconstruction
+----------------------------------------------------------------------------------------------
+
+						Map loading
+
+*We're defining a class whose methods do the following:
+1. repr == represent map as a plot
+2. open_map == extract map data
+3. get_obstacle_map == convert to a binary map
+
+----------------------------------------------------------------------------------------------
+
+					Node/Tree visualization
+
+We have a prebuilt standard class, that helps us visualize data in terms of nodes and adges
+
+the node method, creates a node as per our specs
+the edge methods, connects nodes as per our demands
+
+----------------------------------------------------------------------------------------------
+			
+						class Queue()
+
+*a class to manage elements in a Queue data structure
+
+*len method
+	numel == no. of elements
+*repr method
+	tmpstr == temp start
+	<TO DO>
+
+----------------------------------------------------------------------------------------------
+					
+						class Node()
+
+*a class to manage/maintain all nodes
+*info = name of node, child of node, weight of edges to/fro node
+*weight is a list that stores all the weights of the edges connected to the node (we can have multiple connecting edges)
+
+----------------------------------------------------------------------------------------------
+
+						class Tree()
+
+*a class to maintain the tree data structure
+
+*call method helps in visualizing the tree data structure
+*add_node : adds node at the root
+*diff b/w root and end:
+	root is the starting node of the tree
+	end is the bottom most or last added node of the tree
+
+----------------------------------------------------------------------------------------------
+
+						code snippet #46
+
+we are adding and managing nodes using class Tree() and class Node()
+
+----------------------------------------------------------------------------------------------
+
+						BFS [level order search]
+
+*this class takes in a tree data structure created in code snippet #46 and implements BFS algo to find path
+
+*BFS stops when goal is found, shortest path cannot be guaranteed
+
+----------------------------------------------------------------------------------------------
+
+						Dijstra
+
+*a new tree data structure is created in the code snippet
+*this tree is passed while calling Dijstra algo
+*Dijstra is BFS tweaked:
+	still level order search
+	but follow the path with the lowest weighed edge only
+	after reaching node with shortest length, perform relaxation to its child nodes (updating distance cost)
+	Relaxation:
+		if( d[u]+cost(u,v) < d[v] )
+			d[v] = d[u] + cost(u,v)
+
+*Dijstra can work on non-directed graphs too, but the non-directed graph has to be converted to doubly directed graph
+*Dijstra may not work if the weight of edge is negative
+
+----------------------------------------------------------------------------------------------
+
+						A star

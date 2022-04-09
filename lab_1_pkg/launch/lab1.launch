@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="lab_1_pkg" name="my_tx_node" type="lab1_tx.py" output="screen"/>
+	<node pkg="lab_1_pkg" name="my_rx_node" type="lab1_rx.py" output="screen"/>
+</launch>

@@ -1,0 +1,6 @@
+# CustomService.srv
+# Request fields
+uint32 arg_1
+---
+# Response fields
+string out_1
