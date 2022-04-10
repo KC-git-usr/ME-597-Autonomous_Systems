@@ -1,0 +1,27 @@
+<launch>
+  <!-- Default argument definition to configure navigation stack -->
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="map_file" default="$(find lab_4_pkg)/maps/map.yaml" />
+  <arg name="open_rviz" default="true"/>
+  <!-- Launch robot and world -->
+  <include file="$(find final_project)/launch/ME597_final_project.launch"/>
+  <!-- Map server -->
+  <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+  <!-- AMCL -->
+  <include file="$(find final_project)/launch/amcl.launch"/>
+  <!-- rviz -->
+  <group if="$(arg open_rviz)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find final_project)/rviz/turtlebot3_navigation.rviz"/>
+  </group>
+  
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find final_project)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <remap from="robot_description" to="robot_description" />
+    <remap from="joint_states" to="joint_states" />
+  </node>
+
+  <node pkg="lab_4_pkg" name="navigation" type="navigation-kumar.py" output="screen"/>
+
+</launch>

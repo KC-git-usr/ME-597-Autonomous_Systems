@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from pickle import FALSE, TRUE
 import re
 import sys
 import os
@@ -8,8 +7,6 @@ import numpy as np
 
 import math
 import rospy
-import tf
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose, Twist
 
@@ -26,6 +23,7 @@ class Navigation:
         self.ttbot_pose = PoseStamped()
         self.current_heading = 0
         self.goal_heading = 0
+        self.end_pt = '0,0'
 
 
     def init_app(self):
@@ -99,8 +97,8 @@ class Navigation:
         dt = 1/100
         d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)**(0.5)
         error = abs(d)
-        if (error>0.1):
-            PID_obj_2 = PidController(0.01, 0.008, 0.001, dt, 0.0, 20)
+        if (error>0.15):
+            PID_obj_2 = PidController(0.1, 0.008, 0.001, dt, 0.0, 20)
             cmd_vel.linear.x = PID_obj_2.step(error)
             print("Moving to : ", target_y, target_x)
             self.cmd_vel_pub.publish(cmd_vel)
@@ -112,17 +110,34 @@ class Navigation:
             return 0
 
     
+    def path_follower(self,transformed_path):
+        i = 0
+        for y,x,heading in transformed_path:
+            i = i+1
+            while(self.align(heading)):
+                pass
+            #'''
+            while self.move(y, x):
+                if i==(len(transformed_path)):
+                    cmd_vel = Twist()
+                    cmd_vel.linear.x = 0
+                    self.cmd_vel_pub.publish(cmd_vel)
+                    return True
+            #'''
+
+    
     def a_star_path_planner(self):
         y_rviz_goal, x_rviz_goal = self.goal_pose.pose.position.y, self.goal_pose.pose.position.x
         y_rviz_current, x_rviz_current = self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x
         res = 0.05
         y_pgm = int(100 + (1/res)*(0-y_rviz_current))
         x_pgm = int(100 + (1/res)*(0+x_rviz_current))
-        end_pt = str(y_pgm) + ',' + str(x_pgm)
+        #self.end_pt = str(y_pgm) + ',' + str(x_pgm)
+        self.end_pt = "85,100"
         #we should ideally pass end_pt as argument
         #because we don't know the mapping b/w pixel and gazebo data
         #we are not passing end_pt
-        path = trigger_a_star("85,100") 
+        path = trigger_a_star(self.end_pt) 
         print(path)
         return path
 
@@ -147,18 +162,7 @@ class Navigation:
 
         print(transformed_path)
 
-        return transformed_path
-        
-
-    def path_follower(self,transformed_path):
-        for y,x,heading in transformed_path:
-            while(self.align(heading)):
-                pass
-            #'''
-            while self.move(y, x):
-                pass
-            #'''
-        
+        return transformed_path        
 
 
     def run(self):
@@ -167,7 +171,8 @@ class Navigation:
         path = self.a_star_path_planner() #call only once and get a-start solution
         transformed_path = self.convert_waypoints(path)
         while not rospy.is_shutdown():
-            self.path_follower(transformed_path)
+            if self.path_follower(transformed_path) == True:
+                break
             self.rate.sleep() 
         rospy.signal_shutdown("[{}] Finished Cleanly".format(self.name))
 
