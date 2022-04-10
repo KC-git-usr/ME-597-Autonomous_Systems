@@ -5,6 +5,7 @@ import re
 import sys
 import os
 import numpy as np
+#hi
 
 import math
 import rospy
@@ -95,6 +96,7 @@ class Navigation:
             return 0
 
     def move(self, target_y=0, target_x=0):
+        #hello
         cmd_vel = Twist()
         dt = 1/100
         d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)**(0.5)
