@@ -81,7 +81,7 @@ class Navigation:
         dt = 1/100
         error = (target-self.current_heading)
         if (abs(error)>5):
-            PID_obj_1 = PidController(0.0009, 0.0006, 0.0001, dt, -5, 5)
+            PID_obj_1 = PidController(0.0007, 0.0006, 0.0001, dt, -2, 2)
             cmd_vel.angular.z = PID_obj_1.step(error)
             print("Pls wait, aligning to : ", target)
             self.cmd_vel_pub.publish(cmd_vel)
@@ -133,7 +133,7 @@ class Navigation:
         y_pgm = int(100 + (1/res)*(0-y_rviz_current))
         x_pgm = int(100 + (1/res)*(0+x_rviz_current))
         #self.end_pt = str(y_pgm) + ',' + str(x_pgm)
-        self.end_pt = "85,100"
+        self.end_pt = "85,90"
         #we should ideally pass end_pt as argument
         #because we don't know the mapping b/w pixel and gazebo data
         #we are not passing end_pt
@@ -171,8 +171,10 @@ class Navigation:
         path = self.a_star_path_planner() #call only once and get a-start solution
         transformed_path = self.convert_waypoints(path)
         while not rospy.is_shutdown():
+            '''
             if self.path_follower(transformed_path) == True:
                 break
+            '''
             self.rate.sleep() 
         rospy.signal_shutdown("[{}] Finished Cleanly".format(self.name))
 
