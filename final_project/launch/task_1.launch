@@ -1,7 +1,7 @@
 <launch>
   <!-- Default argument definition to configure navigation stack -->
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-  <arg name="map_file" default="$(find lab_4_pkg)/maps/map.yaml" />
+  <arg name="map_file" default="$(find final_project)/maps/map.yaml" />
   <arg name="open_rviz" default="true"/>
   <!-- Launch robot and world -->
   <include file="$(find final_project)/launch/ME597_final_project.launch"/>
@@ -22,6 +22,6 @@
     <remap from="joint_states" to="joint_states" />
   </node>
 
-  <node pkg="lab_4_pkg" name="navigation" type="navigation-kumar.py" output="screen"/>
+  <node pkg="final_project" name="navigation" type="task_1.py" output="screen"/>
 
 </launch>
