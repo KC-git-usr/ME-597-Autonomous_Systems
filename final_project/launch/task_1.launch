@@ -29,7 +29,7 @@
   </include>
 
   <!--Execute task_1.py-->
-  <!--node pkg="final_project" name="Auto mapping" type="task_1.py" output="screen"/-->
+  <node pkg="final_project" name="Auto_mapping" type="task_1.py" output="screen"/>
 
   <!--Open map file-->
   <!--arg name="map_file" default="$(find final_project)/maps/map.yaml" /-->

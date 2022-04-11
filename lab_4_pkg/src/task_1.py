@@ -11,7 +11,7 @@ from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Pose, Twist
 from sensor_msgs.msg import LaserScan
 
-from Controller import PidController
+from Controlllers import PidController
 
 class Navigation:
 
@@ -96,13 +96,16 @@ class Navigation:
             data_points_count = data_points_count + 1
             self.path_follower
             self.rate.sleep() 
+            print("Reached run while loop")
         rospy.signal_shutdown("[{}] Finished Cleanly".format(self.name))
 
 
 if __name__ == "__main__":
     nav = Navigation(node_name="Auto_mapping")
     nav.init_app()
+    print("Reached main")
     try:
+        print("Reached try")
         nav.run()
     except rospy.ROSInterruptException:
         print("Program interrupted before completion", file=sys.stderr)
