@@ -7,9 +7,6 @@
   <!-- Launch robot and world -->
   <include file="$(find final_project)/launch/ME597_final_project.launch"/>
 
-  <!-- Launch AMCL(reason? for amcl_pose topic?) -->
-  <include file="$(find final_project)/launch/amcl.launch"/>
-
   <!-- rviz -->
   <group if="$(arg open_rviz)"> 
     <node pkg="rviz" type="rviz" name="rvizz" required="true"
@@ -30,12 +27,5 @@
 
   <!--Execute task_1.py-->
   <node pkg="final_project" name="Auto_mapping" type="task_1.py" output="screen"/>
-
-  <!--Open map file-->
-  <!--arg name="map_file" default="$(find final_project)/maps/map.yaml" /-->
-
-  <!-- Map server -->
-  <!--node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/-->
-
 
 </launch>

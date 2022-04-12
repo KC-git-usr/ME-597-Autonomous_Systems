@@ -23,6 +23,6 @@
   </node>
 
   <!--node pkg="lab_4_pkg" name="navigation" type="navigation-kumar.py" output="screen"/-->
-  <node pkg="lab_4_pkg" name="Auto_mapping" type="task_1.py" output="screen"/>
+  <!--node pkg="lab_4_pkg" name="Auto_mapping" type="task_1.py" output="screen"/-->
 
 </launch>
