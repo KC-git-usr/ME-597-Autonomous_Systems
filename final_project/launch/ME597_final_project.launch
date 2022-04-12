@@ -1,9 +1,9 @@
 <launch>
   <arg name="model" default="waffle"/>
-  <!-- <arg name="x_pos" default="-13.0"/> -->
-  <arg name="x_pos" default="0.0"/>
-  <!-- <arg name="y_pos" default="-12.0"/> -->
-  <arg name="y_pos" default="0.0"/>
+  <arg name="x_pos" default="-13.0"/>
+  <!-- <arg name="x_pos" default="0.0"/> -->
+  <arg name="y_pos" default="-12.0"/>
+  <!-- <arg name="y_pos" default="0.0"/> -->
   <arg name="z_pos" default="0.0"/>
 
   <env name="GAZEBO_MODEL_PATH" value="$(find final_project)/models" />
@@ -16,6 +16,11 @@
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
   </include>  
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <remap from="robot_description" to="robot_description" />
+    <remap from="joint_states" to="joint_states" />
+  </node>
 
 
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find final_project)/urdf/turtlebot3_$(arg model).urdf.xacro" />

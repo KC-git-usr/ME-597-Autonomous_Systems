@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-import re
+
 import sys
 import math
 import time
 import rospy
-import random
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 from geometry_msgs.msg import Twist
@@ -39,8 +38,8 @@ class Navigation:
     
 
     def __scan_callback(self, data):
-        self.lidar_dist = data.ranges[0] #extracting critical laser-scan data
-        print("Lidar dist = ", self.lidar_dist)
+        self.lidar_dist = min(data.ranges[30], data.ranges[0], data.ranges[-30]) #extracting critical laser-scan data
+        #print("Lidar dist = ", self.lidar_dist)
 
 
     def __ttbot_pose_cbk(self, data):
@@ -53,22 +52,30 @@ class Navigation:
         n = 2.0*(q3*q2+q0*q1)
         d = 1.0 - 2.0*(q1*q1+q2*q2)
         self.current_heading = math.degrees( math.atan2(n,d) )
-        #print("self.current_heading = ", self.current_heading)
 
+
+    def wall_orientation(self):
+        wall = '-' # - for top/bottom wall, | for right/left wall
+        if (self.current_heading>45 and self.current_heading<135): #left wall
+            wall = '|'
+        elif (self.current_heading<-45 and self.current_heading>-135): #right wall
+            wall = '|'
+        return wall
 
     def path_follower(self):
         self.move_ttbot(0.3)
-        # if self.lidar_dist<0.4:
-        #     target_heading = 180-self.current_heading
-        #     if (abs(self.current_heading)<110 and abs(self.current_heading)>80):
-        #         target_heading = random.randint(0,359)
-        #     while not self.align_ttbot(target_heading):
-        #         pass
+        if self.lidar_dist<1.0:
+            target_heading = 180-self.current_heading
+            wall = self.wall_orientation()
+            if wall == '|':
+                target_heading = -self.current_heading
+            while not self.align_ttbot(target_heading):
+                pass
 
 
     def move_ttbot(self,speed=0):
         cmd_vel = Twist()
-        cmd_vel.linear.x = 0.3
+        cmd_vel.linear.x = 0.6
         cmd_vel.angular.z = 0.0
         self.cmd_vel_pub.publish(cmd_vel)
 
@@ -84,9 +91,9 @@ class Navigation:
         if (abs(error)>10):
             PID_obj_1 = PidController(0.0007, 0.0006, 0.0001, dt, -1, 1)
             cmd_vel.angular.z = PID_obj_1.step(error)
-            #print("Pls wait, aligning to : ", target_heading)
+            print("Pls wait, aligning to : ", target_heading)
         else:
-            #print("Done aligning")
+            print("Done aligning")
             cmd_vel.angular.z = 0
             flag = True
 
@@ -96,7 +103,7 @@ class Navigation:
     def run(self):
         scan_complete = False
         timeout = False
-        #time.sleep(2) #just wait until everything loads
+        time.sleep(2) #just wait until everything loads
         data_points_count = 0
         while not rospy.is_shutdown():
             data_points_count = data_points_count + 1
