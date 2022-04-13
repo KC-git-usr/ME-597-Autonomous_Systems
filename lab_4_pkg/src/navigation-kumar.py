@@ -76,7 +76,7 @@ class Navigation:
             print("Callibration done")
             return 0 #we are done callibrating, exit while loop after setting yaw to 0
 
-    def align(self, target=0):
+    def align_ttbot(self, target=0):
         cmd_vel = Twist()
         dt = 1/100
         error = (target-self.current_heading)
@@ -92,7 +92,7 @@ class Navigation:
             print("Done aligning")
             return 0
 
-    def move(self, target_y=0, target_x=0):
+    def move_ttbot(self, target_y=0, target_x=0):
         cmd_vel = Twist()
         dt = 1/100
         d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)**(0.5)
@@ -114,10 +114,10 @@ class Navigation:
         i = 0
         for y,x,heading in transformed_path:
             i = i+1
-            while(self.align(heading)):
+            while(self.align_ttbot(heading)):
                 pass
             #'''
-            while self.move(y, x):
+            while self.move_ttbot(y, x):
                 if i==(len(transformed_path)):
                     cmd_vel = Twist()
                     cmd_vel.linear.x = 0
@@ -143,7 +143,7 @@ class Navigation:
 
     def convert_waypoints(self, path):
         '''
-        transforming from pixel to gazebo waypoints
+        transforming from pgm to gazebo waypoints
         '''
         transformed_path = []
         for index in range(len(path)-1):
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     #'''
     while (nav.callibrate()):
         pass
-    while(nav.align(0)):
+    while(nav.align_ttbot(0)):
         pass
     #'''
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import rospy
+
 
 from PIL import Image, ImageOps 
 
@@ -15,7 +15,7 @@ import yaml
 import pandas as pd
 
 from copy import copy, deepcopy
-import time
+
 
 
 from nav_msgs.msg import Path
