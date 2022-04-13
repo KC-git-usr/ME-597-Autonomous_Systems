@@ -62,9 +62,18 @@ class Navigation:
             wall = '|'
         return wall
 
+    def get_out(self):
+        """
+        maintain a stack of last 4 data points, if they are all equal (round down the pos)
+        run get_out
+        get direction of max lidar dist
+        align to that direction
+        """
+        print("Get out trigerred")
+
     def path_follower(self):
         self.move_ttbot(0.3)
-        if self.lidar_dist<1.0:
+        if self.lidar_dist<1.5:
             target_heading = 180-self.current_heading
             wall = self.wall_orientation()
             if wall == '|':
@@ -75,14 +84,14 @@ class Navigation:
 
     def move_ttbot(self,speed=0):
         cmd_vel = Twist()
-        cmd_vel.linear.x = 0.6
+        cmd_vel.linear.x = 0.9
         cmd_vel.angular.z = 0.0
         self.cmd_vel_pub.publish(cmd_vel)
 
     def align_ttbot(self, target_heading):
 
         cmd_vel = Twist()
-        cmd_vel.linear.x = -0.01
+        cmd_vel.linear.x = 0.0
         dt = 1/100
         flag = False
         if (target_heading>180):
