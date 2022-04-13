@@ -8,18 +8,11 @@
   <include file="$(find final_project)/launch/ME597_final_project.launch"/>
 
   <!-- rviz -->
-  <group if="$(arg open_rviz)"> 
+  <!-- <group if="$(arg open_rviz)"> 
     <node pkg="rviz" type="rviz" name="rvizz" required="true"
           args="-d $(find final_project)/rviz/turtlebot3_navigation_custom.rviz"/>
-  </group>
+  </group> -->
   
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find final_project)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-    
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
-    <remap from="robot_description" to="robot_description" />
-    <remap from="joint_states" to="joint_states" />
-  </node>
-
   <!--Adding launch file for gmapping-->
   <include file="$(find final_project)/launch/turtlebot3_slam.launch">
     <arg name="slam_methods" value="gmapping"/>

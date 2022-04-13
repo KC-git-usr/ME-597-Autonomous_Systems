@@ -112,7 +112,7 @@ class Navigation:
     def run(self):
         scan_complete = False
         timeout = False
-        time.sleep(2) #just wait until everything loads
+        time.sleep(5) #just wait until everything loads
         data_points_count = 0
         while not rospy.is_shutdown():
             data_points_count = data_points_count + 1
