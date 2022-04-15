@@ -1,11 +1,8 @@
 <launch>
 
   <!-- Default argument definition to configure navigation stack -->
-  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="model" default="waffle"/>
   <arg name="open_rviz" default="true"/>
-
-  <!-- Launch robot and world -->
-  <include file="$(find final_project)/launch/ME597_final_project.launch"/>
 
   <!-- rviz -->
   <!-- <group if="$(arg open_rviz)"> 
@@ -14,9 +11,13 @@
   </group> -->
   
   <!--Adding launch file for gmapping-->
-  <include file="$(find final_project)/launch/turtlebot3_slam.launch">
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
     <arg name="slam_methods" value="gmapping"/>
   </include>
+
+
+  <!-- Launch robot and world -->
+  <include file="$(find final_project)/launch/ME597_final_project.launch"/>
 
   <!--Execute task_1.py-->
   <node pkg="final_project" name="Auto_mapping" type="task_1.py" output="screen"/>
