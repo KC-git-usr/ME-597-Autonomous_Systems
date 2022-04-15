@@ -5,7 +5,6 @@ import sys
 import math
 import time
 import rospy
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -39,7 +38,6 @@ class Navigation:
 
     def __scan_callback(self, data):
         self.lidar_dist = min(data.ranges[30], data.ranges[0], data.ranges[-30]) #extracting critical laser-scan data
-        #print("Lidar dist = ", self.lidar_dist)
 
 
     def __ttbot_pose_cbk(self, data):
@@ -62,6 +60,7 @@ class Navigation:
             wall = '|'
         return wall
 
+
     def get_out(self):
         """
         maintain a stack of last 4 data points, if they are all equal (round down the pos)
@@ -71,6 +70,7 @@ class Navigation:
         """
         print("Get out trigerred")
 
+
     def path_follower(self):
         self.move_ttbot(0.3)
         if self.lidar_dist<1.5:
@@ -78,8 +78,7 @@ class Navigation:
             wall = self.wall_orientation()
             if wall == '|':
                 target_heading = -self.current_heading
-            while not self.align_ttbot(target_heading):
-                pass
+            self.align_ttbot(target_heading)
 
 
     def move_ttbot(self,speed=0):
@@ -88,34 +87,34 @@ class Navigation:
         cmd_vel.angular.z = 0.0
         self.cmd_vel_pub.publish(cmd_vel)
 
+
     def align_ttbot(self, target_heading):
 
         cmd_vel = Twist()
         cmd_vel.linear.x = 0.0
         dt = 1/100
-        flag = False
+
         if (target_heading>180):
             target_heading = -(360-target_heading)
+
         error = (target_heading-self.current_heading)
-        if (abs(error)>10):
+        print("Pls wait, aligning to : ", target_heading)
+
+        while (error>10):
             PID_obj_1 = PidController(0.0007, 0.0006, 0.0001, dt, -1, 1)
             cmd_vel.angular.z = PID_obj_1.step(error)
-            print("Pls wait, aligning to : ", target_heading)
-        else:
-            print("Done aligning")
-            cmd_vel.angular.z = 0
-            flag = True
+
+        print("Done aligning")
+        cmd_vel.angular.z = 0
 
         self.cmd_vel_pub.publish(cmd_vel)
-        return flag
+
 
     def run(self):
         scan_complete = False
         timeout = False
         time.sleep(5) #just wait until everything loads
-        data_points_count = 0
         while not rospy.is_shutdown():
-            data_points_count = data_points_count + 1
             self.path_follower()
             self.rate.sleep()
         rospy.signal_shutdown("[{}] Finished Cleanly".format(self.name))

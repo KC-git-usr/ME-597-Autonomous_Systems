@@ -3,18 +3,11 @@
   <!-- Default argument definition to configure navigation stack -->
   <arg name="model" default="waffle"/>
   <arg name="open_rviz" default="true"/>
-
-  <!-- rviz -->
-  <!-- <group if="$(arg open_rviz)"> 
-    <node pkg="rviz" type="rviz" name="rvizz" required="true"
-          args="-d $(find final_project)/rviz/turtlebot3_navigation_custom.rviz"/>
-  </group> -->
   
   <!--Adding launch file for gmapping-->
   <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
     <arg name="slam_methods" value="gmapping"/>
   </include>
-
 
   <!-- Launch robot and world -->
   <include file="$(find final_project)/launch/ME597_final_project.launch"/>
