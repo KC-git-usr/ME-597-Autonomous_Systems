@@ -4,6 +4,7 @@
 
 from PIL import Image, ImageOps 
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -346,9 +347,11 @@ class AStar():
         return path,dist
 
 #'''
-def trigger_a_star(start_pt='0,0', goal_pt='0,0'):
-    Map('lab_4_pkg/maps/my_map')
-    mp = MapProcessor('lab_4_pkg/maps/my_map')
+def trigger_a_star(start_pt, goal_pt):
+    #Map('/home/kc/catkin_ws/src/final_project/maps/my_map')
+    #mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/my_map')
+    Map('final_project/maps/my_map')
+    mp = MapProcessor('final_project/maps/my_map')
 
 
     kr = mp.rect_kernel(6,6)
@@ -372,10 +375,10 @@ def trigger_a_star(start_pt='0,0', goal_pt='0,0'):
 
     return path_as
 
-
-# path = trigger_a_star("85,100")
-# print(path)
-
+'''
+path = trigger_a_star("85,100")
+print(path)
+'''
 
 
 

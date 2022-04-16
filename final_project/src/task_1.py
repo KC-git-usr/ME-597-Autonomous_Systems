@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 
+from collections import deque
+from dataclasses import dataclass
 import sys
 import math
 import time
@@ -23,6 +25,8 @@ class Navigation:
         self.ttbot_pose = Odometry()
         self.current_heading = 0
         self.lidar_dist = 0
+        self.lidar_data = LaserScan()
+        self.last_four_pts = deque()
 
 
     def init_app(self):
@@ -37,7 +41,8 @@ class Navigation:
     
 
     def __scan_callback(self, data):
-        self.lidar_dist = min(data.ranges[30], data.ranges[0], data.ranges[-30]) #extracting critical laser-scan data
+        self.lidar_data = data
+        self.lidar_dist = min(data.ranges[30], data.ranges[0], data.ranges[330]) #extracting critical laser-scan data
 
 
     def __ttbot_pose_cbk(self, data):
@@ -52,62 +57,119 @@ class Navigation:
         self.current_heading = math.degrees( math.atan2(n,d) )
 
 
-    def wall_orientation(self):
-        wall = '-' # - for top/bottom wall, | for right/left wall
-        if (self.current_heading>45 and self.current_heading<135): #left wall
-            wall = '|'
-        elif (self.current_heading<-45 and self.current_heading>-135): #right wall
-            wall = '|'
-        return wall
+    def format_angle(self, angle):
+        if angle>180:
+            angle = -(360-angle)
+        if angle<-180:
+            angle = (360+angle)
+        return angle
 
 
     def get_out(self):
-        """
-        maintain a stack of last 4 data points, if they are all equal (round down the pos)
-        run get_out
-        get direction of max lidar dist
-        align to that direction
-        """
         print("Get out trigerred")
+        angles = [0, 30, 60, 90, 120, 180, 210, 250, 270, 300, 330]
+        best_angle = 0
+        for angle in angles:
+            if self.lidar_data.ranges[angle]>=self.lidar_data.ranges[best_angle]:
+                best_angle = angle  
+
+        target_heading = self.current_heading+best_angle
+
+        print("Pls wait, aligning to : ", target_heading)
+        while self.align_ttbot(target_heading):
+            pass
+        print("Done aligning")
+
+
+    def wall_orientation(self):
+        wall = '-' # - for top/bottom wall, | for right/left wall
+        curr_heading = self.format_angle(self.current_heading)
+        if (curr_heading<0 and curr_heading>-90): #top or right wall
+            if(self.lidar_data.ranges[30]>self.lidar_data.ranges[330]): #right wall
+                wall = '|'
+                print("Right wall")
+            else:
+                wall = '-'
+                print("Top wall")
+        elif (curr_heading<90 and curr_heading>0): #top or left wall
+            if(self.lidar_data.ranges[30]>self.lidar_data.ranges[330]): #top wall
+                wall = '-'
+                print("Top wall")
+            else:
+                wall = '|'
+                print("Left wall")
+        elif (curr_heading<0 and curr_heading<-90): #bottom or right wall
+            if(self.lidar_data.ranges[30]>self.lidar_data.ranges[330]): #bottom wall
+                wall = '-'
+                print("Bottom wall")
+            else:
+                wall = '|'
+                print("Right wall")
+        elif (curr_heading>0 and curr_heading>90): #bottom or left wall
+            if(self.lidar_data.ranges[30]<self.lidar_data.ranges[330]): #bottom wall
+                wall = '-'
+                print("Bottom wall")
+            else:
+                wall = '|'
+                print("Left wall")
+        return wall
 
 
     def path_follower(self):
-        self.move_ttbot(0.3)
-        if self.lidar_dist<1.5:
+
+        self.move_ttbot(1.5)
+
+        if self.lidar_dist<3.0:
+
+            y, x = round(self.ttbot_pose.pose.position.y, 1), round(self.ttbot_pose.pose.position.x, 1)
+            self.last_four_pts.append((y, x))
+            if len(self.last_four_pts)>4:
+                self.last_four_pts.popleft()
+            if (len(self.last_four_pts)==4) and (self.last_four_pts[0] == self.last_four_pts[3]):
+                self.get_out()
+                return
+
             target_heading = 180-self.current_heading
             wall = self.wall_orientation()
             if wall == '|':
                 target_heading = -self.current_heading
-            self.align_ttbot(target_heading)
+
+            target_heading = self.format_angle(target_heading)
+            print("Pls wait, aligning to : ", target_heading)
+            print("y, x = ", y, x)
+            while self.align_ttbot(target_heading):
+                pass
+            print("Done aligning")
 
 
-    def move_ttbot(self,speed=0):
+    def move_ttbot(self,speed):
         cmd_vel = Twist()
-        cmd_vel.linear.x = 0.9
         cmd_vel.angular.z = 0.0
+        cmd_vel.linear.x = 0.0
+        while cmd_vel.linear.x <=speed and self.lidar_dist>3.0:
+            time.sleep(0.5)
+            cmd_vel.linear.x += 0.1
+            self.cmd_vel_pub.publish(cmd_vel)
         self.cmd_vel_pub.publish(cmd_vel)
 
 
-    def align_ttbot(self, target_heading):
-
+    def align_ttbot(self, target_heading=0):
         cmd_vel = Twist()
         cmd_vel.linear.x = 0.0
         dt = 1/100
-
-        if (target_heading>180):
-            target_heading = -(360-target_heading)
-
-        error = (target_heading-self.current_heading)
-        print("Pls wait, aligning to : ", target_heading)
-
-        while (error>10):
-            PID_obj_1 = PidController(0.0007, 0.0006, 0.0001, dt, -1, 1)
+        flag = True
+        target_heading = self.format_angle(target_heading)
+        curr_heading = self.format_angle(self.current_heading)
+        error = (target_heading-curr_heading)
+        if (abs(error)>1):
+            PID_obj_1 = PidController(0.0015, 0.0008, 0.0003, dt, -2, 2)
             cmd_vel.angular.z = PID_obj_1.step(error)
-
-        print("Done aligning")
-        cmd_vel.angular.z = 0
+        else:
+            cmd_vel.angular.z = 0
+            flag = False
 
         self.cmd_vel_pub.publish(cmd_vel)
+        return flag
 
 
     def run(self):

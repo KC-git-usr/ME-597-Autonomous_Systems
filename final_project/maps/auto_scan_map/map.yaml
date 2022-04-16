@@ -1,4 +1,4 @@
-image: /home/kc/catkin_ws/src/final_project/map.pgm
+image: /home/kc/catkin_ws/src/final_project/maps/map.pgm
 resolution: 0.050000
 origin: [-26.000000, -26.000000, 0.000000]
 negate: 0
