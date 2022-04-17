@@ -4,7 +4,6 @@
 
 from PIL import Image, ImageOps 
 
-import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -44,7 +43,7 @@ class Map():
         map_name = map_df.image[0]
         print(map_name)
         im = Image.open(map_name)
-        size = 192, 192
+        size = 116, 116
         im.thumbnail(size)
         im = ImageOps.grayscale(im)
         # Get the limits of the map. This will help to display the map
@@ -63,7 +62,7 @@ class Map():
 
         for j in range(self.map_im.size[0]):
             for i in range(self.map_im.size[1]):
-                if img_array[i,j] > up_thresh:
+                if img_array[i,j] > (up_thresh+39):
                     img_array[i,j] = 255
                 else:
                     img_array[i,j] = 0
@@ -350,11 +349,11 @@ class AStar():
 def trigger_a_star(start_pt, goal_pt):
     #Map('/home/kc/catkin_ws/src/final_project/maps/my_map')
     #mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/my_map')
-    Map('final_project/maps/my_map')
-    mp = MapProcessor('final_project/maps/my_map')
+    Map('final_project/maps/map')
+    mp = MapProcessor('final_project/maps/map')
 
 
-    kr = mp.rect_kernel(6,6)
+    kr = mp.rect_kernel(3,3)
     mp.inflate_map(kr,True)
 
     mp.get_graph_from_map()
@@ -371,14 +370,13 @@ def trigger_a_star(start_pt, goal_pt):
 
     path_as = [tuple(map(int, x.split(','))) for x in path_as]
     #print(path_as)
-    #print(dist_as)
 
     return path_as
 
-'''
-path = trigger_a_star("85,100")
-print(path)
-'''
+
+# path = trigger_a_star('116,116', '100,116')
+# print(path)
+
 
 
 

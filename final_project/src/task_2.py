@@ -2,7 +2,7 @@
 
 from cgi import test
 import sys
-import os
+import time
 
 import math
 import rospy
@@ -11,6 +11,7 @@ from geometry_msgs.msg import PoseStamped, Twist
 
 from Controller import PidController
 from astar_map import trigger_a_star
+
 
 class Navigation:
 
@@ -66,27 +67,9 @@ class Navigation:
             cmd_vel.angular.z = 0
             self.cmd_vel_pub.publish(cmd_vel)
             return 0 #we are done callibrating, exit while loop after setting yaw to 0
-
-    def align_ttbot(self, target=0):
-        cmd_vel = Twist()
-        cmd_vel.linear.x = 0.0
-        flag = True
-        dt = 1/100
-        error = (target-self.current_heading)
-        if (abs(error)>5):
-            PID_obj_1 = PidController(0.0007, 0.0006, 0.0001, dt, -2, 2)
-            cmd_vel.angular.z = PID_obj_1.step(error)
-            print("Pls wait, aligning to : ", target)
-        else:
-            cmd_vel.angular.z = 0
-            print("Done aligning")
-            flag = False
-
-        self.cmd_vel_pub.publish(cmd_vel)
-        return flag
         
 
-    def align_test(self, target=0):
+    def align_ttbot(self, target=0):
         cmd_vel = Twist()
         cmd_vel.linear.x = 0.0
         dt = 1/100
@@ -101,30 +84,9 @@ class Navigation:
         cmd_vel.angular.z = 0
         print("Done aligning")
         self.cmd_vel_pub.publish(cmd_vel)
-        
+
 
     def move_ttbot(self, target_y=0, target_x=0):
-        cmd_vel = Twist()
-        cmd_vel.angular.z = 0
-        flag = True
-        dt = 1/100
-        d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)**(0.5)
-        error = abs(d)
-        if (error>0.15):
-            PID_obj_2 = PidController(0.1, 0.008, 0.001, dt, 0.0, 2)
-            cmd_vel.linear.x = PID_obj_2.step(error)
-            print("Moving to : ", target_y, target_x)
-        else:
-            cmd_vel.linear.x = 0
-            print("Vel={} error={} d={} t_y={} t_x={} c_y={} c_x+{}".format(cmd_vel.linear.x, error, d, target_y, target_x, \
-                self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x))
-            flag = False
-
-        self.cmd_vel_pub.publish(cmd_vel)
-        return flag
-
-
-    def move_test(self, target_y=0, target_x=0):
         cmd_vel = Twist()
         cmd_vel.angular.z = 0
         dt = 1/100
@@ -143,25 +105,18 @@ class Navigation:
         self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x))
         self.cmd_vel_pub.publish(cmd_vel)
 
-
-    def path_follower(self,transformed_path):
-        i = 0
-        for y,x,heading in transformed_path:
-            self.align_test(heading)
-            self.move_test(y, x)
-
     
     def a_star_path_planner(self):
         y_rviz_goal, x_rviz_goal = self.goal_pose.pose.position.y, self.goal_pose.pose.position.x
         y_rviz_current, x_rviz_current = self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x
-        res = 0.1005
 
-        y_pgm = int(192 - (1/res)*(10+y_rviz_current))
-        x_pgm = int(-0 + (1/res)*(10+x_rviz_current))
+        res = 0.05*8
+        y_pgm = int(116 - (1/res)*(26+y_rviz_current))
+        x_pgm = int(-0 + (1/res)*(26+x_rviz_current))
         start_pt = str(y_pgm) + ',' + str(x_pgm)
 
-        y_pgm = int(192 - (1/res)*(10+y_rviz_goal))
-        x_pgm = int(-0 + (1/res)*(10+x_rviz_goal))
+        y_pgm = int(116 - (1/res)*(26+y_rviz_goal))
+        x_pgm = int(-0 + (1/res)*(26+x_rviz_goal))
         end_pt = str(y_pgm) + ',' + str(x_pgm)
 
         path = trigger_a_star(start_pt, end_pt) 
@@ -170,48 +125,21 @@ class Navigation:
 
     def path_follower_test(self,path):
         for index in range(len(path)):
-            res = 0.1005
             y, x = path[index]
-            y_rviz = -10.0 + res*(192-y)
-            x_rviz = -10.0 + res*(0+x)
+            res = 0.05*8
+            y_rviz = -26.0 + res*(116-y)
+            x_rviz = -26.0 + res*(0+x)
             heading = math.degrees(math.atan2( (y_rviz-self.ttbot_pose.pose.position.y), (x_rviz-self.ttbot_pose.pose.position.x) ))
-            self.align_test(heading)
-            self.move_test(y_rviz, x_rviz)
+            self.align_ttbot(heading)
+            self.move_ttbot(y_rviz, x_rviz)
         heading = self.goal_heading
-        self.align_test(heading)
-
-    def convert_waypoints(self, path):
-        '''
-        transforming from pgm to gazebo waypoints
-        '''
-        transformed_path = []
-        for index in range(len(path)-1):
-            y1, x1 = path[index]
-            y2, x2 = path[index+1]
-            res = 0.1005
-            y_rviz_1 = -10.0 + res*(192-y1)
-            x_rviz_1 = -10.0 + res*(0+x1)
-            y_rviz_2 = -10.0 + res*(192-y2)
-            x_rviz_2 = -10.0 + res*(0+x2)
-            heading = math.degrees(math.atan2( (y_rviz_2-y_rviz_1), (x_rviz_2-x_rviz_1) ))
-            transformed_path.append((y_rviz_1, x_rviz_1, heading))
-
-        y_rviz = self.goal_pose.pose.position.y
-        x_rviz = self.goal_pose.pose.position.x
-        heading = self.goal_heading
-        transformed_path.append((y_rviz, x_rviz, heading))
-
-        print("transformed_path = ", transformed_path)
-
-        return transformed_path        
+        self.align_ttbot(heading)    
 
 
     def run(self):
         path_complete = False
         timeout = False
         path = self.a_star_path_planner() #call only once and get a-start solution
-        #transformed_path = self.convert_waypoints(path)
-        #self.path_follower(transformed_path)
         self.path_follower_test(path)
         print("Goal reached")
         while not rospy.is_shutdown():
@@ -220,18 +148,19 @@ class Navigation:
 
 
 if __name__ == "__main__":
-    nav = Navigation(node_name='Navigation')
+    nav = Navigation(node_name='task_2')
     nav.init_app()
+
+    print("Please use 2D pose to pre-align the bot")
+    time.sleep(15)
 
     print("Callibrating, please wait")
     while (nav.callibrate()):
         pass
-    nav.align_test(0)
+    nav.align_ttbot(0)
     print("Callibration done")
 
     try:
         nav.run()
-        # nav.align_test(-90)
-        # nav.move_test(-1.0,-1.0)
     except rospy.ROSInterruptException:
         print("program interrupted before completion", file=sys.stderr)
