@@ -43,7 +43,7 @@ class Map():
         map_name = map_df.image[0]
         print(map_name)
         im = Image.open(map_name)
-        size = 116, 116
+        size = 120, 120
         im.thumbnail(size)
         im = ImageOps.grayscale(im)
         # Get the limits of the map. This will help to display the map
@@ -346,14 +346,14 @@ class AStar():
         return path,dist
 
 #'''
-def trigger_a_star(start_pt, goal_pt):
+def trigger_a_star(start_pt, goal_pt='0,0'):
     #Map('/home/kc/catkin_ws/src/final_project/maps/my_map')
     #mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/my_map')
     Map('final_project/maps/map')
     mp = MapProcessor('final_project/maps/map')
 
 
-    kr = mp.rect_kernel(3,3)
+    kr = mp.rect_kernel(5,5)
     mp.inflate_map(kr,True)
 
     mp.get_graph_from_map()
@@ -369,7 +369,7 @@ def trigger_a_star(start_pt, goal_pt):
     path_as,dist_as = as_maze.reconstruct_path(mp.map_graph.g[mp.map_graph.root],mp.map_graph.g[mp.map_graph.end]) # finds path to goal 
 
     path_as = [tuple(map(int, x.split(','))) for x in path_as]
-    #print(path_as)
+    print(path_as)
 
     return path_as
 

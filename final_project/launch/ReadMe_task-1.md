@@ -6,3 +6,6 @@ $rosrun map_server map_saver -f /home/kc/catkin_ws/src/final_project/auto_scan_m
 
 bugs to be fixed:
 1. should i manually change lidar parameters in turtlebot3_waffle.gazebo.xarco and gmapping_params.yaml ?
+2. make the speed proportional
+3. remove old map inside auto_scan_map
+4. clean up print statements

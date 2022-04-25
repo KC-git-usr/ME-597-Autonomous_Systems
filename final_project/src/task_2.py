@@ -23,6 +23,7 @@ class Navigation:
         self.ttbot_pose = PoseStamped()
         self.current_heading = 0
         self.goal_heading = 0
+        self.path = []
 
 
     def init_app(self):
@@ -43,6 +44,10 @@ class Navigation:
         n = 2.0*(q3*q2+q0*q1)
         d = 1.0 - 2.0*(q1*q1+q2*q2)
         self.goal_heading = math.degrees( math.atan2(n,d) ) #output yaw is in degrees
+        print("Received new goal pose with heading = ", self.goal_heading)
+        self.path = self.a_star_path_planner()
+        self.path_follower_test()
+        print("Goal reached")
 
 
     def __ttbot_pose_cbk(self, data):
@@ -93,7 +98,7 @@ class Navigation:
         d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)
         error = abs(d)
         print("Moving to : ", target_y, target_x)
-        while error>0.05:
+        while error>0.09:
             d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)
             error = abs(d)
             PID_obj_2 = PidController(0.01, 0.009, 0.008, dt, 0.0, 0.4)
@@ -101,8 +106,8 @@ class Navigation:
             self.cmd_vel_pub.publish(cmd_vel)
 
         cmd_vel.linear.x = 0
-        print("Vel={} error={} d={} t_y={} t_x={} c_y={} c_x+{}".format(cmd_vel.linear.x, error, d, target_y, target_x, \
-        self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x))
+        #print("Vel={} error={} d={} t_y={} t_x={} c_y={} c_x+{}".format(cmd_vel.linear.x, error, d, target_y, target_x, \
+        #self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x))
         self.cmd_vel_pub.publish(cmd_vel)
 
     
@@ -110,12 +115,12 @@ class Navigation:
         y_rviz_goal, x_rviz_goal = self.goal_pose.pose.position.y, self.goal_pose.pose.position.x
         y_rviz_current, x_rviz_current = self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x
 
-        res = 0.05*8
-        y_pgm = int(116 - (1/res)*(26+y_rviz_current))
+        res = 0.10*4
+        y_pgm = int(120 - (1/res)*(26+y_rviz_current))
         x_pgm = int(-0 + (1/res)*(26+x_rviz_current))
         start_pt = str(y_pgm) + ',' + str(x_pgm)
 
-        y_pgm = int(116 - (1/res)*(26+y_rviz_goal))
+        y_pgm = int(120 - (1/res)*(26+y_rviz_goal))
         x_pgm = int(-0 + (1/res)*(26+x_rviz_goal))
         end_pt = str(y_pgm) + ',' + str(x_pgm)
 
@@ -123,11 +128,11 @@ class Navigation:
 
         return path
 
-    def path_follower_test(self,path):
-        for index in range(len(path)):
-            y, x = path[index]
-            res = 0.05*8
-            y_rviz = -26.0 + res*(116-y)
+    def path_follower_test(self):
+        for index in range(len(self.path)):
+            y, x = self.path[index]
+            res = 0.10*4
+            y_rviz = -26.0 + res*(120-y)
             x_rviz = -26.0 + res*(0+x)
             heading = math.degrees(math.atan2( (y_rviz-self.ttbot_pose.pose.position.y), (x_rviz-self.ttbot_pose.pose.position.x) ))
             self.align_ttbot(heading)
@@ -139,9 +144,9 @@ class Navigation:
     def run(self):
         path_complete = False
         timeout = False
-        path = self.a_star_path_planner() #call only once and get a-start solution
-        self.path_follower_test(path)
-        print("Goal reached")
+        #path = self.a_star_path_planner() #call only once and get a-start solution
+        #self.path_follower_test()
+        #print("Goal reached")
         while not rospy.is_shutdown():
             self.rate.sleep() 
         rospy.signal_shutdown("[{}] Finished Cleanly".format(self.name))
@@ -151,14 +156,11 @@ if __name__ == "__main__":
     nav = Navigation(node_name='task_2')
     nav.init_app()
 
-    print("Please use 2D pose to pre-align the bot")
-    time.sleep(15)
-
-    print("Callibrating, please wait")
+    print("Callibrating, please wait and refrain from giving any inputs yet")
     while (nav.callibrate()):
         pass
     nav.align_ttbot(0)
-    print("Callibration done")
+    print("Callibration done, please give a 2D goal pose now")
 
     try:
         nav.run()

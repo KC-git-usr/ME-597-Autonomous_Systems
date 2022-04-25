@@ -12,7 +12,7 @@
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!-- AMCL -->
-  <include file="$(find turtlebot3_navigation)/launch/amcl.launch"/>
+  <include file="$(find final_project)/launch/amcl.launch"/>
 
   <!-- rviz -->
   <group if="$(arg open_rviz)"> 
