@@ -21,6 +21,6 @@
   </group>
   
   <!--Execute task_2.py-->
-  <!-- <node pkg="final_project" name="task_2" type="task_2.py" output="screen"/> -->
+  <node pkg="final_project" name="task_2" type="task_2.py" output="screen"/>
 
 </launch>

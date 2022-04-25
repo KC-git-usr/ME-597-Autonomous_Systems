@@ -347,10 +347,10 @@ class AStar():
 
 #'''
 def trigger_a_star(start_pt, goal_pt='0,0'):
-    #Map('/home/kc/catkin_ws/src/final_project/maps/my_map')
-    #mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/my_map')
-    Map('final_project/maps/map')
-    mp = MapProcessor('final_project/maps/map')
+    #Map('final_project/maps/my_map')
+    #mp = MapProcessor('final_project/maps/my_map')
+    Map('/home/kc/catkin_ws/src/final_project/maps/map')
+    mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/map')
 
 
     kr = mp.rect_kernel(5,5)
@@ -369,7 +369,7 @@ def trigger_a_star(start_pt, goal_pt='0,0'):
     path_as,dist_as = as_maze.reconstruct_path(mp.map_graph.g[mp.map_graph.root],mp.map_graph.g[mp.map_graph.end]) # finds path to goal 
 
     path_as = [tuple(map(int, x.split(','))) for x in path_as]
-    print(path_as)
+    print("Waypoints = ", path_as)
 
     return path_as
 

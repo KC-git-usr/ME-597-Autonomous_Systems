@@ -1,12 +1,13 @@
-execute these commands to auto map:
+**Instructions**
 
-$roslaunch final_project task_2.launch
-$rosrun final_project task_2.py
+1. Open final_project/src/astar_map.py, go to line 352, make sure the directory is correct
+2. Do the same for line 353
+3. Execute this command:
+    $roslaunch final_project task_2.launch
+4. To increase speed of simulation:
+    *Switch to Gazebo window
+    *click physics->propoerty->real time
+    *set it to 5000
 
 To fix:
-1. Keep accepting new goal poses
-2. Combine task_2.py in task_2.launch
-3. Increase speed of bot
-4. Change initial offset of amcl.launch file
-5. Jalil's suggestions: avg the heading, skip pixel waypoints
-6. clean up print statements
+1. clean up print statements

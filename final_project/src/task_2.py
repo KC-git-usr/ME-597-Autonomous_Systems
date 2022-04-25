@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-from cgi import test
 import sys
-import time
-
 import math
 import rospy
 from nav_msgs.msg import Path, Odometry
@@ -18,12 +15,12 @@ class Navigation:
     def __init__(self, node_name='Navigation'):
         self.node_name = node_name
         self.rate = 0
-        self.path = Path()
         self.goal_pose = PoseStamped()
         self.ttbot_pose = PoseStamped()
         self.current_heading = 0
         self.goal_heading = 0
         self.path = []
+        self.callibration_status = False
 
 
     def init_app(self):
@@ -45,9 +42,10 @@ class Navigation:
         d = 1.0 - 2.0*(q1*q1+q2*q2)
         self.goal_heading = math.degrees( math.atan2(n,d) ) #output yaw is in degrees
         print("Received new goal pose with heading = ", self.goal_heading)
-        self.path = self.a_star_path_planner()
-        self.path_follower_test()
-        print("Goal reached")
+        if self.callibration_status:
+            self.a_star_path_planner() #get a star solution
+            self.path_follower()
+            print("Goal reached")
 
 
     def __ttbot_pose_cbk(self, data):
@@ -124,11 +122,10 @@ class Navigation:
         x_pgm = int(-0 + (1/res)*(26+x_rviz_goal))
         end_pt = str(y_pgm) + ',' + str(x_pgm)
 
-        path = trigger_a_star(start_pt, end_pt) 
+        self.path = trigger_a_star(start_pt, end_pt) 
 
-        return path
 
-    def path_follower_test(self):
+    def path_follower(self):
         for index in range(len(self.path)):
             y, x = self.path[index]
             res = 0.10*4
@@ -142,11 +139,6 @@ class Navigation:
 
 
     def run(self):
-        path_complete = False
-        timeout = False
-        #path = self.a_star_path_planner() #call only once and get a-start solution
-        #self.path_follower_test()
-        #print("Goal reached")
         while not rospy.is_shutdown():
             self.rate.sleep() 
         rospy.signal_shutdown("[{}] Finished Cleanly".format(self.name))
@@ -156,11 +148,12 @@ if __name__ == "__main__":
     nav = Navigation(node_name='task_2')
     nav.init_app()
 
-    print("Callibrating, please wait and refrain from giving any inputs yet")
+    print("Callibrating, please wait...")
     while (nav.callibrate()):
         pass
     nav.align_ttbot(0)
-    print("Callibration done, please give a 2D goal pose now")
+    nav.callibration_status = True
+    print("Callibration done, you may give a 2D goal pose now")
 
     try:
         nav.run()
