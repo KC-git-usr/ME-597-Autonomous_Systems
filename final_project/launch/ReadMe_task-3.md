@@ -15,3 +15,10 @@ To fix:
 
 1. Idea 1: perspective transformation from image and lidar
 2. Idea 2: get lidar point cloud data, if circular...
+
+To Do:
+1. change map name
+2. inc speed of bot, tune PID- rqt plot
+3. comple readme's
+4. add additional cameras?
+5. resize image in detect_dyn_obs?
