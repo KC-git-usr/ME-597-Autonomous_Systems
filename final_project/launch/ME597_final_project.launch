@@ -1,8 +1,8 @@
 <launch>
   <arg name="model" default="waffle"/>
-  <arg name="x_pos" default="-13.0"/>
+  <arg name="x_pos" default="-1.0"/>
   <!-- <arg name="x_pos" default="0.0"/> -->
-  <arg name="y_pos" default="-12.0"/>
+  <arg name="y_pos" default="0.0"/>
   <!-- <arg name="y_pos" default="0.0"/> -->
   <arg name="z_pos" default="0.0"/>
 

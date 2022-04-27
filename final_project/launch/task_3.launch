@@ -1,0 +1,29 @@
+<launch>
+
+  <!-- Default argument definition to configure navigation stack -->
+  <arg name="model" default="waffle"/>
+  <arg name="map_file" default="$(find final_project)/maps/map.yaml" />
+  <arg name="open_rviz" default="true"/>
+
+  <!-- Launch robot and world -->
+  <include file="$(find final_project)/launch/ME597_final_project.launch"/>
+
+  <!-- Map server -->
+  <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
+  <!-- AMCL -->
+  <include file="$(find final_project)/launch/amcl.launch"/>
+
+  <!-- rviz -->
+  <group if="$(arg open_rviz)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"/>
+  </group>
+
+  <!--Execute dynamic_obstacles.py-->
+  <!-- <node pkg="final_project" name="model_service_node" type="dynamic_obstacles.py" output="screen"/> -->
+  
+  <!--Execute task_3.py-->
+  <!-- <node pkg="final_project" name="task_3" type="task_3.py" output="screen"/> -->
+
+</launch>

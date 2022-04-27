@@ -353,7 +353,7 @@ def trigger_a_star(start_pt, goal_pt='0,0'):
     mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/map')
 
 
-    kr = mp.rect_kernel(5,5)
+    kr = mp.rect_kernel(4,4)
     mp.inflate_map(kr,True)
 
     mp.get_graph_from_map()
