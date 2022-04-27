@@ -4,6 +4,7 @@ import rospkg
 from gazebo_msgs.srv import SpawnModel, DeleteModel, SetModelState
 from gazebo_msgs.msg import ModelState
 from geometry_msgs.msg import Pose
+import time
 
 
 def spawn_model(model_name):
@@ -77,6 +78,7 @@ def position_node():
 
 if __name__ == '__main__':
     try:
+        time.sleep(3)
         position_node()
     except rospy.ROSInterruptException:
         pass

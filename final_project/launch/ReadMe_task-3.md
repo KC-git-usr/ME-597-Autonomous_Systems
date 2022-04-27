@@ -4,9 +4,6 @@
 2. Do the same for line 353
 3. Execute this command:
     $roslaunch final_project task_3.launch
-    $rosrun final_project dynamic_obstacles.py
-    $rosrun final_project detect_dyn_obs.py
-    $rosrun final_project task_3.py
 4. To increase speed of simulation:
     *Switch to Gazebo window
     *click physics->propoerty->real time

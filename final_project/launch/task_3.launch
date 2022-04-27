@@ -21,9 +21,12 @@
   </group>
 
   <!--Execute dynamic_obstacles.py-->
-  <!-- <node pkg="final_project" name="model_service_node" type="dynamic_obstacles.py" output="screen"/> -->
+  <node pkg="final_project" name="model_service_node" type="dynamic_obstacles.py" output="screen"/>
+
+  <!--Execute detect_dyn_obs.py-->
+  <node pkg="final_project" name="obstacle_detector" type="detect_dyn_obs.py" output="screen"/>
   
   <!--Execute task_3.py-->
-  <!-- <node pkg="final_project" name="task_3" type="task_3.py" output="screen"/> -->
+  <node pkg="final_project" name="task_3" type="task_3.py" output="screen"/>
 
 </launch>

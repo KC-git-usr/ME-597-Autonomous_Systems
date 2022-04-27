@@ -150,7 +150,7 @@ class Navigation:
 
 
 if __name__ == "__main__":
-    nav = Navigation(node_name='task_2')
+    nav = Navigation(node_name='task_3')
     nav.init_app()
 
     print("Callibrating, please wait...")

@@ -54,7 +54,7 @@ class obstacle_detector:
             cv2.putText(masked_img, str(area[i]), (cX + 25, cY + 25),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 225, 0), 1)
             i=i+1
         self.max_area = max(area)
-        print("Max area = ", self.max_area)
+        #print("Max area = ", self.max_area)
 
         safe_area = 170000.0
         obstacle_detect = Bool()
