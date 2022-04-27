@@ -56,7 +56,7 @@ class obstacle_detector:
         self.max_area = max(area)
         print("Max area = ", self.max_area)
 
-        safe_area = 250000.0
+        safe_area = 170000.0
         obstacle_detect = Bool()
         obstacle_detect.data = False
         if self.max_area>safe_area:
