@@ -8,9 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-from graphviz import Graph
-
-
 import yaml
 import pandas as pd
 
@@ -255,7 +252,6 @@ class Tree():
         self.root = 0
         self.end = 0
         self.g = {}
-        self.g_visual = Graph('G')
     
     def __call__(self):
         for name,node in self.g.items():
@@ -345,12 +341,39 @@ class AStar():
         path.reverse()
         return path,dist
 
-#'''
+
+def has_area(pt1, pt2, pt3):
+    area = 0.0
+    y1, x1 = pt1
+    y2, x2 = pt2
+    y3, x3 = pt3
+    area = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)
+    return area
+
+def refine_waypoints(path):
+    new_path = [path[0]]
+    left, right = 0,0
+    i = 1
+    while right<(len(path)-1):
+        if has_area(path[left], path[right], path[right+1]):
+            new_path.append(path[right])
+            i = 1
+            left = right
+            right+=1
+        else:
+            if (i%2)==0:
+                new_path.append(path[right])
+            right+=1
+            i+=1
+    new_path.append(path[right])
+    return new_path
+
+
 def trigger_a_star(start_pt, goal_pt='0,0'):
     #Map('final_project/maps/my_map')
     #mp = MapProcessor('final_project/maps/my_map')
-    Map('/home/kc/catkin_ws/src/final_project/maps/map')
-    mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/map')
+    Map('/home/kc/catkin_ws/src/final_project/maps/final_map')
+    mp = MapProcessor('/home/kc/catkin_ws/src/final_project/maps/final_map')
 
 
     kr = mp.rect_kernel(4,4)
@@ -371,7 +394,10 @@ def trigger_a_star(start_pt, goal_pt='0,0'):
     path_as = [tuple(map(int, x.split(','))) for x in path_as]
     print("Waypoints = ", path_as)
 
-    return path_as
+    new_path = refine_waypoints(path_as)
+    print("Refined waypoints =", new_path)
+
+    return new_path
 
 
 # path = trigger_a_star('116,116', '100,116')

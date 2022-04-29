@@ -23,6 +23,7 @@ class Navigation:
         self.callibration_status = False
         self.obstacle_status = Bool()
         self.cmd_vel = Twist()
+        self.PID_obj_2 = PidController(0.01, 0.009, 0.008, 1/100, -0.3, 0.3)
 
 
     def init_app(self):
@@ -81,15 +82,26 @@ class Navigation:
     def align_ttbot(self, target=0):
         self.cmd_vel.linear.x = 0.0
         dt = 1/100
+        target = round(target, 2)
+        self.current_heading = round(self.current_heading, 2)
         error = (target-self.current_heading)
+        if abs(target)>170 and abs(self.current_heading)>170:
+            error = (180-abs(target)) - (180-abs(self.current_heading))
         print("Pls wait, aligning to : ", target)
-        while abs(error)>0.5:
+        while abs(error)>0.1:
             error = (target-self.current_heading)
-            PID_obj_1 = PidController(0.0009, 0.0008, 0.0001, dt, -2, 2)
+            if abs(target)>170 and abs(self.current_heading)>170:
+                target = round(target, 0)
+                self.current_heading = round(self.current_heading, 0)
+                error = (180-abs(target)) - (180-abs(self.current_heading))
+                error = abs(error)
+            PID_obj_1 = PidController(0.009, 0.001, 0.0003, dt, -2, 2)
             self.cmd_vel.angular.z = PID_obj_1.step(error)
+            self.cmd_vel.linear.x = 0.0
             self.cmd_vel_pub.publish(self.cmd_vel)
 
         self.cmd_vel.angular.z = 0
+        self.cmd_vel.linear.x = 0.0
         print("Done aligning")
         self.cmd_vel_pub.publish(self.cmd_vel)
 
@@ -100,17 +112,18 @@ class Navigation:
         d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)
         error = abs(d)
         print("Moving to : ", target_y, target_x)
-        while error>0.09:
+        while error>0.1:
             d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)
             error = abs(d)
-            PID_obj_2 = PidController(0.01, 0.009, 0.008, dt, 0.0, 0.4)
-            self.cmd_vel.linear.x = PID_obj_2.step(error)
+            self.cmd_vel.linear.x = self.PID_obj_2.step(error)
+            self.cmd_vel.angular.z = 0
             if self.obstacle_status.data:
                 self.cmd_vel.linear.x = 0.0
                 print("Waiting for obstacle to pass")
             self.cmd_vel_pub.publish(self.cmd_vel)
 
         self.cmd_vel.linear.x = 0.0
+        self.cmd_vel.angular.z = 0
         self.cmd_vel_pub.publish(self.cmd_vel)
 
     

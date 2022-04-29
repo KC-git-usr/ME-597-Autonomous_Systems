@@ -161,8 +161,8 @@ class Navigation:
         target_heading = self.format_angle(target_heading)
         curr_heading = self.format_angle(self.current_heading)
         error = (target_heading-curr_heading)
-        if (abs(error)>1):
-            PID_obj_1 = PidController(0.0015, 0.0008, 0.0003, dt, -2, 2)
+        if (abs(error)>5):
+            PID_obj_1 = PidController(0.009, 0.001, 0.0003, dt, -2, 2)
             cmd_vel.angular.z = PID_obj_1.step(error)
         else:
             cmd_vel.angular.z = 0

@@ -2,10 +2,8 @@ execute these commands to auto map:
 
 $export TURTLEBOT3_MODEL=waffle
 $roslaunch final_project task_1.launch
-$rosrun map_server map_saver -f /home/kc/catkin_ws/src/final_project/auto_scan_map/map
+$rosrun map_server map_saver -f /home/kc/catkin_ws/src/final_project/maps/map
 
 bugs to be fixed:
-1. should i manually change lidar parameters in turtlebot3_waffle.gazebo.xarco and gmapping_params.yaml ?
-2. make the speed proportional
-3. remove old map inside auto_scan_map
-4. clean up print statements
+1. make the speed proportional
+2. last minute change of lidar dist to 13m (was not aware), ttbot needs to be tuned for this range

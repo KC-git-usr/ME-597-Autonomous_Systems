@@ -7,7 +7,7 @@
 4. To increase speed of simulation:
     *Switch to Gazebo window
     *click physics->propoerty->real time
-    *set it to 5000
+    *set it to 2000
 
 To fix:
 1. clean up print statements
@@ -17,8 +17,7 @@ To fix:
 2. Idea 2: get lidar point cloud data, if circular...
 
 To Do:
-1. change map name
-2. inc speed of bot, tune PID- rqt plot
+1. inc speed of bot, tune PID- rqt plot
 3. comple readme's
 4. add additional cameras?
 5. resize image in detect_dyn_obs?

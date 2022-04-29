@@ -21,6 +21,7 @@ class Navigation:
         self.goal_heading = 0
         self.path = []
         self.callibration_status = False
+        self.PID_obj_2 = PidController(0.01, 0.009, 0.008, 1/100, -0.3, 0.3)
 
 
     def init_app(self):
@@ -76,15 +77,27 @@ class Navigation:
         cmd_vel = Twist()
         cmd_vel.linear.x = 0.0
         dt = 1/100
+        target = round(target, 2)
+        self.current_heading = round(self.current_heading, 2)
         error = (target-self.current_heading)
+        if abs(target)>170 and abs(self.current_heading)>170:
+            error = (180-abs(target)) - (180-abs(self.current_heading))
         print("Pls wait, aligning to : ", target)
-        while abs(error)>0.5:
+        while abs(error)>0.1:
             error = (target-self.current_heading)
-            PID_obj_1 = PidController(0.0009, 0.0008, 0.0001, dt, -2, 2)
+            if abs(target)>170 and abs(self.current_heading)>170:
+                target = round(target, 0)
+                self.current_heading = round(self.current_heading, 0)
+                error = (180-abs(target)) - (180-abs(self.current_heading))
+                error = abs(error)
+            #PID_obj_1 = PidController(0.0009, 0.0008, 0.0001, dt, -2, 2)
+            #PID_obj_1 = PidController(0.009, 0.001, 0.0003, dt, -2, 2)
+            PID_obj_1 = PidController(0.009, 0.001, 0.0003, dt, -2, 2)
             cmd_vel.angular.z = PID_obj_1.step(error)
+            cmd_vel.linear.x = 0.0
             self.cmd_vel_pub.publish(cmd_vel)
-
         cmd_vel.angular.z = 0
+        cmd_vel.linear.x = 0.0
         print("Done aligning")
         self.cmd_vel_pub.publish(cmd_vel)
 
@@ -96,16 +109,19 @@ class Navigation:
         d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)
         error = abs(d)
         print("Moving to : ", target_y, target_x)
-        while error>0.09:
+        while error>0.1:
             d = ( (target_y-self.ttbot_pose.pose.position.y)**2 + (target_x-self.ttbot_pose.pose.position.x)**2)
             error = abs(d)
-            PID_obj_2 = PidController(0.01, 0.009, 0.008, dt, 0.0, 0.4)
-            cmd_vel.linear.x = PID_obj_2.step(error)
+            #PID_obj_2 = PidController(0.01, 0.009, 0.008, dt, 0.0, 0.4)
+            #PID_obj_2 = PidController(1.6, 0.09, 0.002, dt, 0.0, 0.4)
+            #PID_obj_2 = PidController(3.0, 0.09, 1.0, dt, 0.0, 0.4)
+            #PID_obj_2 = PidController(15.0, 1.2, 2.5, dt, 0.0, 0.4)
+            #PID_obj_2 = PidController(0.3, 0.0, 0.3, dt, -1.0, 1.0)
+            cmd_vel.linear.x = self.PID_obj_2.step(error)
+            cmd_vel.angular.z = 0
             self.cmd_vel_pub.publish(cmd_vel)
-
         cmd_vel.linear.x = 0
-        #print("Vel={} error={} d={} t_y={} t_x={} c_y={} c_x+{}".format(cmd_vel.linear.x, error, d, target_y, target_x, \
-        #self.ttbot_pose.pose.position.y, self.ttbot_pose.pose.position.x))
+        cmd_vel.angular.z = 0
         self.cmd_vel_pub.publish(cmd_vel)
 
     

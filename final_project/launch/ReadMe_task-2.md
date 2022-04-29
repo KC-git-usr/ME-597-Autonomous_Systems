@@ -7,7 +7,7 @@
 4. To increase speed of simulation:
     *Switch to Gazebo window
     *click physics->propoerty->real time
-    *set it to 5000
+    *set it to 2000
 
 To fix:
 1. clean up print statements

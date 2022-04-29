@@ -2,7 +2,7 @@
 
   <!-- Default argument definition to configure navigation stack -->
   <arg name="model" default="waffle"/>
-  <arg name="map_file" default="$(find final_project)/maps/map.yaml" />
+  <arg name="map_file" default="$(find final_project)/maps/final_map.yaml" />
   <arg name="open_rviz" default="true"/>
 
   <!-- Launch robot and world -->
